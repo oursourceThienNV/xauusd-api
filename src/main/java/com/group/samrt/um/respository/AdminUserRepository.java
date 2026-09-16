@@ -19,15 +19,31 @@ public interface AdminUserRepository extends JpaRepository<AdminUser,String>, Jp
     Optional<AdminUser> findAdminUserByUsername(String username);
     Optional<AdminUser> findByUsernameAndStatus(String username,String status);
     @Query("""
-        SELECT u
-        FROM AdminUser u
-        WHERE (:keyword IS NULL
-               OR :keyword = ''
-               OR LOWER(u.username) LIKE LOWER(CONCAT('%', :keyword, '%')))
-        ORDER BY u.username ASC
-    """)
+    SELECT u
+    FROM AdminUser u
+    WHERE (
+        (
+            :role = '00'
+            AND u.role IN ('02', '03')
+        )
+        OR
+        (
+            :role = '01'
+            AND u.role = '03'
+            AND u.createdBy = :createdBy
+        )
+    )
+    AND (
+        :keyword IS NULL
+        OR :keyword = ''
+        OR LOWER(u.username) LIKE LOWER(CONCAT('%', :keyword, '%'))
+    )
+    ORDER BY u.username ASC
+""")
     Page<AdminUser> findAccountList(
             @Param("keyword") String keyword,
+            @Param("role") String role,
+            @Param("createdBy") String createdBy,
             Pageable pageable
     );
 

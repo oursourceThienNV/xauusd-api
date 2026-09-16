@@ -19,7 +19,7 @@ public class AdminUser {
     private String username;
     @Column(nullable = false)
     private String password;
-    private String role;       // ADMIN / MEMBER
+    private String role;       // 00: admin, 01: sale 02: tài khoản nội bộ, 03 tài khoản khách hàng
     private String status;     // ACTIVE / INACTIVE
     private String fullname;
     private String email;

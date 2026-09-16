@@ -1,5 +1,6 @@
 package com.group.samrt.um.respository;
 
+import com.group.samrt.um.domain.uml.AdminUser;
 import com.group.samrt.um.domain.uml.TradingTransaction;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -151,28 +153,56 @@ public interface TradingTransactionRepository
     // =========================================================
 
     @Query("""
-        SELECT t.account
-        FROM TradingTransaction t
-        WHERE t.account IS NOT NULL
-          AND t.account <> ''
-          AND t.closeTime >= :from
-          AND t.closeTime < :to
-          AND (
-              :keyword IS NULL
-              OR :keyword = ''
-              OR LOWER(t.account)
-                    LIKE LOWER(CONCAT('%', :keyword, '%'))
+    SELECT t.account, u.fullname
+    FROM TradingTransaction t
+    JOIN AdminUser u ON u.username = t.account
+    WHERE t.account IS NOT NULL
+      AND t.account <> ''
+      AND t.closeTime >= :from
+      AND t.closeTime < :to
+
+      AND (
+          :keyword IS NULL
+          OR :keyword = ''
+          OR LOWER(t.account) LIKE LOWER(CONCAT('%', :keyword, '%'))
+          OR LOWER(u.fullname) LIKE LOWER(CONCAT('%', :keyword, '%'))
+      )
+
+      AND (
+          (
+               :role = '00'
+               AND (
+                   (
+                       :roleType IS NULL
+                       OR :roleType = ''
+                   )
+                   AND u.role IN ('02', '03')
+                   OR
+                   (
+                       :roleType IS NOT NULL
+                       AND :roleType <> ''
+                       AND u.role = :roleType
+                   )
+               )
+           )
+          OR
+          (
+              :role = '01'
+              AND u.role = '03'
           )
-        GROUP BY t.account
-        ORDER BY t.account ASC
-    """)
-    Page<String> findReportAccounts(
+      )
+
+    GROUP BY t.account, u.fullname
+    ORDER BY t.account ASC
+""")
+    Page<Object[]> findReportAccounts(
             @Param("from") Instant from,
             @Param("to") Instant to,
             @Param("keyword") String keyword,
+            @Param("role") String role,
+            @Param("roleType") String roleType,
             Pageable pageable
     );
-
 
     // =========================================================
     // REPORT 2
@@ -380,4 +410,8 @@ public interface TradingTransactionRepository
       AND t.account <> ''
 """)
     List<String> findDistinctAccounts();
+    List<TradingTransaction> findAllByAccountAndTicketIn(
+            String account,
+            Collection<Long> tickets
+    );
 }

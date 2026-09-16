@@ -8,6 +8,7 @@ import com.group.samrt.um.respository.TradingTransactionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -88,10 +89,16 @@ public class UserService implements UserDetailsService {
             String keyword,
             Pageable pageable
     ) {
-
+        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        AdminUser session = adminUserRepository.findByUsername(userDetails.getUsername());
+        if(session.getStatus().equals(Constant.STATUS.INACTICE)){
+            return null;
+        }
         Page<AdminUser> userPage =
                 adminUserRepository.findAccountList(
                         keyword,
+                        session.getRole(),
+                        session.getUsername(),
                         pageable
                 );
 
@@ -99,6 +106,7 @@ public class UserService implements UserDetailsService {
                 buildAccountResponse(
                         user.getUsername(),
                         user.getStatus(),
+                        user.getFullname(),
                         user.getLicenseExpiredDt()
                 )
         );
@@ -111,6 +119,7 @@ public class UserService implements UserDetailsService {
     private AccountListResponse buildAccountResponse(
             String account,
             String status,
+            String fullname,
             Instant licenseExpiredDt
     ) {
 
@@ -118,6 +127,7 @@ public class UserService implements UserDetailsService {
                 new AccountListResponse();
 
         response.setAccount(account);
+        response.setFullname(fullname);
 
 
         // =========================================

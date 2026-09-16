@@ -55,7 +55,7 @@ public class ReportController {
 
             @RequestParam
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-            LocalDate to
+            LocalDate to, @RequestParam(required = false) String roleType
     ) {
 
         // =====================================================
@@ -148,6 +148,7 @@ public class ReportController {
                         fromInstant,
                         toInstant,
                         keyword,
+                        roleType,
                         pageable
                 );
 

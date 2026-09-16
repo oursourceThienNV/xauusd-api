@@ -10,6 +10,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.repository.query.Param;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,20 +40,25 @@ public class ReportService {
             Instant from,
             Instant to,
             String keyword,
+            String roleType,
             Pageable pageable
     ) {
-
-        Page<String> accountPage =
+        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        AdminUser session = adminUserRepository.findByUsername(userDetails.getUsername());
+        Page<Object[]> accountPage =
                 tradingTransactionRepository.findReportAccounts(
                         from,
                         to,
                         keyword,
+                        session.getRole(),
+                        roleType,
                         pageable
                 );
 
-        return accountPage.map(
-                account -> buildAccountReport(
-                        account,
+        return accountPage.map(account ->
+                buildAccountReport(
+                        (String) account[0],  // account
+                        (String) account[1],  // fullname
                         from,
                         to
                 )
@@ -64,6 +72,7 @@ public class ReportService {
 
     private AccountReportResponse buildAccountReport(
             String account,
+            String fullname,
             Instant from,
             Instant to
     ) {
@@ -77,6 +86,7 @@ public class ReportService {
         // =====================================================
 
         response.setAccount(account);
+        response.setFullname(fullname);
 
 
         // =====================================================

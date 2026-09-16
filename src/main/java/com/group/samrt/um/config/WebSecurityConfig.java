@@ -85,6 +85,8 @@ public class WebSecurityConfig {
                                 "/api/public/**",
                                 "/register",
                                 "/trading-transaction",
+                                "/check-result/**",
+                                "/trading-transaction/**",
                                 "/write-log",
                                 "/api/auth/login",
                                 "/uploads/**",
@@ -126,7 +128,7 @@ public class WebSecurityConfig {
                         .addMapping("/**")
                         .allowedOrigins(
                                 "http://localhost:3000",
-                                "http://160.22.123.39:3000"
+                                "http://180.93.144.96:3000"
                         )
                         .allowedMethods(
                                 "GET",

@@ -12,13 +12,12 @@ import com.group.samrt.um.service.TradingTransactionService;
 import com.group.samrt.um.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 
 @RestController
 public class LodaRestController {
@@ -94,5 +93,23 @@ public class LodaRestController {
     public boolean saveLog(
             @RequestBody SystemLogRequest request) {
         return systemLogService.save(request);
+    }
+    @GetMapping("/trading-transaction/{ticket}")
+    public TradingTransaction getTradingTransaction(
+            @PathVariable Long ticket
+    ) {
+        return tradingTransactionService.findByTicket(ticket);
+    }
+    @GetMapping("/check-result/{ticket}")
+    public String checkResult(
+            @PathVariable Long ticket
+    ) {
+        return tradingTransactionService.checkResult(ticket);
+    }
+    @PostMapping("/trading-transaction/save-history")
+    public List<TradingTransaction> saveTradingTransactions(
+            @RequestBody List<TradingTransaction> transactions) {
+
+        return tradingTransactionService.saveAll(transactions);
     }
 }

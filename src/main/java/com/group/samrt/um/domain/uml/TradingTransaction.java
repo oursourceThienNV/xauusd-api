@@ -12,6 +12,7 @@ import java.time.Instant;
 @Table(name = "trading_transaction")
 public class TradingTransaction {
 
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -187,4 +188,6 @@ public class TradingTransaction {
      */
     private Instant updatedDt;
     private Boolean firstTradeAfterBotStart;
+    private String lotNumber;
+    private String autoBot;
 }

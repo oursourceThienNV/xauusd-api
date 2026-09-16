@@ -7,7 +7,7 @@ public interface Constant {
         String DEATH = "02";// damat
     }
     public interface VERSION{
-        String version="1.2";
+        String version="2.0";
     }
     public interface ERROR_CODE{
         String ERROR_SUCCESS="00";

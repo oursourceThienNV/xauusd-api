@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 public class AccountReportResponse {
 
     private String account;
+    private String fullname;
 
     /**
      * Số dư hiện tại
